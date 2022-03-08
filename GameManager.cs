@@ -1,13 +1,10 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Text;
-using MapAssist.Structs;
+﻿using System.Diagnostics;
+using SharpStyx.Structs;
 
-namespace MapAssist.Helpers
+namespace SharpStyx
 {
     public class GameManager
     {
-        public static readonly string ProcessName = Encoding.UTF8.GetString(new byte[] { 68, 50, 82 });
         private static IntPtr _winHook;
         private static int _foregroundProcessId = 0;
 
@@ -30,83 +27,7 @@ namespace MapAssist.Helpers
         private static IntPtr _LastHoverDataOffset;
 
         private static WindowsExternal.WinEventDelegate _eventDelegate = null;
-
-        public static void MonitorForegroundWindow()
-        {
-            _eventDelegate = new WindowsExternal.WinEventDelegate(WinEventProc);
-            _winHook = WindowsExternal.SetWinEventHook(WindowsExternal.EVENT_SYSTEM_FOREGROUND, WindowsExternal.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _eventDelegate, 0, 0, WindowsExternal.WINEVENT_OUTOFCONTEXT);
-
-            SetActiveWindow(WindowsExternal.GetForegroundWindow()); // Needed once to start, afterwards the hook will provide updates
-        }
-
-        private static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
-        {
-            SetActiveWindow(hwnd);
-        }
-
-        private static void SetActiveWindow(IntPtr hwnd)
-        {
-            if (!WindowsExternal.HandleExists(hwnd)) // Handle doesn't exist
-            {
-                _log.Info($"Active window changed to another process (handle: {hwnd})");
-                return;
-            }
-
-            uint processId;
-            WindowsExternal.GetWindowThreadProcessId(hwnd, out processId);
-
-            _foregroundProcessId = (int)processId;
-
-            if (_lastGameProcessId == _foregroundProcessId) // Process is the last found valid game process
-            {
-                _log.Info($"Active window changed to last game process (handle: {hwnd})");
-                return;
-            }
-
-            Process process;
-            try // The process can end before this block is done, hence wrap it in a try catch
-            {
-                process = Process.GetProcessById(_foregroundProcessId); // If closing another non-foreground window, Process.GetProcessById can fail
-
-                if (process.ProcessName != ProcessName) // Not a valid game process
-                {
-                    _log.Info($"Active window changed to a non-game window (handle: {hwnd})");
-                    ClearLastGameProcess();
-                    return;
-                }
-            }
-            catch
-            {
-                _log.Info($"Active window changed to a now closed window (handle: {hwnd})");
-                ClearLastGameProcess();
-                return;
-            }
-
-            // is a new game process
-            _log.Info($"Active window changed to a game window (handle: {hwnd})");
-
-            try
-            {
-                using (var _ = new ProcessContext(process)) { } // Read memory test to see if game is running as an admin
-            }
-            catch (Win32Exception ex)
-            {
-                if (ex.Message == "Access is denied")
-                {
-                    OnGameAccessDenied(null, null);
-                    return;
-                }
-                else
-                {
-                    throw ex;
-                }
-            }
-
-            _lastGameHwnd = hwnd;
-            _lastGameProcess = process;
-            _lastGameProcessId = _foregroundProcessId;
-        }
-
+        
         public static ProcessContext GetProcessContext()
         {
             if (_processContext != null && _processContext.OpenContextCount > 0)
@@ -122,24 +43,7 @@ namespace MapAssist.Helpers
 
             return null;
         }
-
-        private static void ClearLastGameProcess()
-        {
-            if (MapAssistConfiguration.Loaded.RenderingConfiguration.StickToLastGameWindow) return;
-
-            if (_processContext != null && _processContext.OpenContextCount == 0 && _lastGameProcess != null) // Prevent disposing the process when the context is open
-            {
-                _lastGameProcess.Dispose();
-            }
-
-            _lastGameHwnd = IntPtr.Zero;
-            _lastGameProcess = null;
-            _lastGameProcessId = 0;
-        }
-
-        public static IntPtr MainWindowHandle { get => _lastGameHwnd; }
-        public static bool IsGameInForeground { get => _lastGameProcessId == _foregroundProcessId; }
-
+        
         public static UnitHashTable UnitHashTable(int offset = 0)
         {
             using (var processContext = GetProcessContext())

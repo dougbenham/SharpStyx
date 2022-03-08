@@ -1,28 +1,4 @@
-﻿/**
- *   Copyright (C) 2021 okaygo
- *
- *   https://github.com/misterokaygo/MapAssist/
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **/
-
-using MapAssist.Helpers;
-using MapAssist.Settings;
-using System;
-using System.Collections.Generic;
-
-namespace MapAssist.Types
+﻿namespace SharpStyx.Types
 {
     public enum Area : uint
     {
@@ -172,7 +148,6 @@ namespace MapAssist.Types
 
     public static class AreaExtensions
     {
-        public static Dictionary<string, LocalizedObj> LocalizedAreas = new Dictionary<string, LocalizedObj>();
         private static readonly Dictionary<Area, AreaLabel> _areaLabels = new Dictionary<Area, AreaLabel>()
         {
             [Area.None] = new AreaLabel() {
@@ -767,63 +742,6 @@ namespace MapAssist.Types
             Area.FrigidHighlands,
             Area.ArreatPlateau,
         };
-
-        public static string MapLabel(this Area area, Difficulty difficulty)
-        {
-            var label = area.Name();
-            var areaLevel = area.Level(difficulty);
-            if (areaLevel > 0)
-            {
-                label += $" ({areaLevel})";
-            }
-            return label;
-        }
-
-        public static string PortalLabel(this Area area, Difficulty difficulty, string playerName = null)
-        {
-            if (playerName != null)
-            {
-                switch (area)
-                {
-                    case Area.RogueEncampment:
-                    case Area.LutGholein:
-                    case Area.KurastDocks:
-                    case Area.ThePandemoniumFortress:
-                    case Area.Harrogath:
-                        return $"TP ({playerName})";
-
-                    default:
-                        return $"{area.Name()} ({playerName})";
-                }
-            }
-            return area.MapLabel(difficulty);
-        }
-
-        public static string NameFromKey(string key)
-        {
-            LocalizedObj localItem;
-            if (!LocalizedAreas.TryGetValue(key, out localItem))
-            {
-                return "AreaNameNotFound";
-            }
-            var lang = MapAssistConfiguration.Loaded.LanguageCode;
-            var prop = localItem.GetType().GetProperty(lang.ToString()).GetValue(localItem, null);
-            return prop.ToString();
-        }
-
-        public static string Name(this Area area)
-        {
-            var areaLabel = _areaLabels.TryGetValue(area, out var label) ? label.Text : area.ToString();
-
-            LocalizedObj localItem;
-            if (!LocalizedAreas.TryGetValue(areaLabel, out localItem))
-            {
-                return area.ToString();
-            }
-            var lang = MapAssistConfiguration.Loaded.LanguageCode;
-            var prop = localItem.GetType().GetProperty(lang.ToString()).GetValue(localItem, null);
-            return prop.ToString();
-        }
 
         public static string NameInternal(this Area area)
         {

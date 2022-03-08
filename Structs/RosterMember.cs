@@ -1,7 +1,7 @@
-﻿using MapAssist.Types;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using SharpStyx.Types;
 
-namespace MapAssist.Structs
+namespace SharpStyx.Structs
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct RosterMember

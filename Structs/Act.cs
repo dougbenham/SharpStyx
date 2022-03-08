@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace MapAssist.Structs
+namespace SharpStyx.Structs
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct Act

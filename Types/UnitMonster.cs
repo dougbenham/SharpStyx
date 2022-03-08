@@ -1,9 +1,6 @@
-﻿using MapAssist.Helpers;
-using MapAssist.Structs;
-using System;
-using System.Collections.Generic;
+﻿using SharpStyx.Structs;
 
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class UnitMonster : UnitAny
     {

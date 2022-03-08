@@ -1,26 +1,6 @@
-﻿/**
- *   Copyright (C) 2021 okaygo
- *
- *   https://github.com/misterokaygo/MapAssist/
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **/
+﻿using System.Runtime.InteropServices;
 
-using System;
-using System.Runtime.InteropServices;
-
-namespace MapAssist.Helpers
+namespace SharpStyx
 {
     public static class WindowsExternal
     {
@@ -61,12 +41,7 @@ namespace MapAssist.Helpers
             [Out] byte[] lpBuffer,
             int dwSize,
             out IntPtr lpNumberOfBytesRead);
-
-        // This helper static method is required because the 32-bit version of user32.dll does not contain this API
-        // (on any versions of Windows), so linking the method will fail at run-time. The bridge dispatches the request
-        // to the correct function (GetWindowLong in 32-bit mode and GetWindowLongPtr in 64-bit mode)
-
-        // If that doesn't work, the following signature can be used alternatively.
+        
         [DllImport("user32.dll")]
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
 
@@ -75,9 +50,7 @@ namespace MapAssist.Helpers
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
         private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
-
-        // This static method is required because Win32 does not support
-        // GetWindowLongPtr directly
+        
         public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
         {
             if (IntPtr.Size == 8)
@@ -88,8 +61,7 @@ namespace MapAssist.Helpers
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy,
-            uint uFlags);
+        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
         public static bool HandleExists(IntPtr hWnd)
         {

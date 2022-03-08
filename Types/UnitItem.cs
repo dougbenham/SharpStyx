@@ -1,30 +1,29 @@
-﻿using MapAssist.Helpers;
-using MapAssist.Settings;
-using MapAssist.Structs;
-using System;
-using System.Drawing;
+﻿using SharpStyx.Structs;
 
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class UnitItem : UnitAny
     {
         public ItemData ItemData { get; private set; }
-        public new bool IsPlayerOwned { get; set; } = false;
-        public Npc VendorOwner { get; set; } = Npc.Invalid;
-        public Item Item => (Item)TxtFileNo;
-        public ItemMode ItemMode => (ItemMode)Struct.Mode;
-        public string ItemBaseName => Items.GetItemBaseName(this);
-        public Color ItemBaseColor => Items.GetItemBaseColor(this);
 
+        public new bool IsPlayerOwned { get; set; } = false;
+
+        public Npc VendorOwner { get; set; } = Npc.Invalid;
+
+        public Item Item => (Item) TxtFileNo;
+
+        public ItemMode ItemMode => (ItemMode) Struct.Mode;
+        
         public UnitItem(IntPtr ptrUnit) : base(ptrUnit)
         {
         }
 
         public new UnitItem Update()
         {
-            if (base.Update() == UpdateResult.InvalidUpdate) return this;
+            if (base.Update() == UpdateResult.InvalidUpdate)
+                return this;
 
-            if (IsValidUnit && MapAssistConfiguration.Loaded.ItemLog.Enabled)
+            if (IsValidUnit)
             {
                 using (var processContext = GameManager.GetProcessContext())
                 {
@@ -67,6 +66,7 @@ namespace MapAssist.Types
                     case ItemModeMapped.Mercenary:
                         return true;
                 }
+
                 return false;
             }
         }
@@ -77,25 +77,38 @@ namespace MapAssist.Types
             {
                 switch (ItemMode)
                 {
-                    case ItemMode.INBELT: return ItemModeMapped.Belt;
-                    case ItemMode.DROPPING: return ItemModeMapped.Ground;
-                    case ItemMode.ONGROUND: return ItemModeMapped.Ground;
-                    case ItemMode.SOCKETED: return ItemModeMapped.Socket;
+                    case ItemMode.INBELT:
+                        return ItemModeMapped.Belt;
+                    case ItemMode.DROPPING:
+                        return ItemModeMapped.Ground;
+                    case ItemMode.ONGROUND:
+                        return ItemModeMapped.Ground;
+                    case ItemMode.SOCKETED:
+                        return ItemModeMapped.Socket;
                     case ItemMode.EQUIP:
-                        if (ItemData.dwOwnerID != uint.MaxValue) return ItemModeMapped.Player;
-                        else return ItemModeMapped.Mercenary;
+                        if (ItemData.dwOwnerID != uint.MaxValue)
+                            return ItemModeMapped.Player;
+                        else
+                            return ItemModeMapped.Mercenary;
                 }
 
-                if (ItemData.dwOwnerID == uint.MaxValue && (ItemData.ItemFlags & ItemFlags.IFLAG_INSTORE) == ItemFlags.IFLAG_INSTORE && ItemData.InvPage != InvPage.NULL) return ItemModeMapped.Vendor;
-                if (ItemData.dwOwnerID == uint.MaxValue) return ItemModeMapped.Selected;
-                if (ItemData.dwOwnerID != uint.MaxValue && ItemData.InvPage == InvPage.EQUIP) return ItemModeMapped.Trade; // Other player's trade window
+                if (ItemData.dwOwnerID == uint.MaxValue && (ItemData.ItemFlags & ItemFlags.IFLAG_INSTORE) == ItemFlags.IFLAG_INSTORE && ItemData.InvPage != InvPage.NULL)
+                    return ItemModeMapped.Vendor;
+                if (ItemData.dwOwnerID == uint.MaxValue)
+                    return ItemModeMapped.Selected;
+                if (ItemData.dwOwnerID != uint.MaxValue && ItemData.InvPage == InvPage.EQUIP)
+                    return ItemModeMapped.Trade; // Other player's trade window
 
                 switch (ItemData.InvPage)
                 {
-                    case InvPage.INVENTORY: return ItemModeMapped.Inventory;
-                    case InvPage.TRADE: return ItemModeMapped.Trade;
-                    case InvPage.CUBE: return ItemModeMapped.Cube;
-                    case InvPage.STASH: return ItemModeMapped.Stash;
+                    case InvPage.INVENTORY:
+                        return ItemModeMapped.Inventory;
+                    case InvPage.TRADE:
+                        return ItemModeMapped.Trade;
+                    case InvPage.CUBE:
+                        return ItemModeMapped.Cube;
+                    case InvPage.STASH:
+                        return ItemModeMapped.Stash;
                 }
 
                 return ItemModeMapped.Unknown; // Items that appeared in the trade window before will appear here

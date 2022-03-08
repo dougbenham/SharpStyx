@@ -1,8 +1,6 @@
-﻿using MapAssist.Helpers;
-using MapAssist.Structs;
-using System;
+﻿using SharpStyx.Structs;
 
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class UnitObject : UnitAny
     {

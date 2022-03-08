@@ -1,8 +1,7 @@
 ﻿using System.Text;
-using MapAssist.Helpers;
-using MapAssist.Interfaces;
+using SharpStyx.Interfaces;
 
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class Session : IUpdatable<Session>
     {

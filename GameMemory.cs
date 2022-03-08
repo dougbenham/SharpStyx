@@ -1,6 +1,6 @@
-using MapAssist.Types;
+using SharpStyx.Types;
 
-namespace MapAssist.Helpers
+namespace SharpStyx
 {
     public static class GameMemory
     {
@@ -20,11 +20,6 @@ namespace MapAssist.Helpers
 
         public static GameData GetGameData()
         {
-            if (!GameManager.IsGameInForeground)
-            {
-                return null;
-            }
-
             var processContext = GameManager.GetProcessContext();
 
             if (processContext == null)
@@ -39,7 +34,7 @@ namespace MapAssist.Helpers
                 var menuOpen = processContext.Read<byte>(GameManager.MenuOpenOffset);
                 var menuData = processContext.Read<Structs.MenuData>(GameManager.MenuDataOffset);
                 var lastHoverData = processContext.Read<Structs.HoverData>(GameManager.LastHoverDataOffset);
-                var lastNpcInteracted = (Npc)processContext.Read<ushort>(GameManager.InteractedNpcOffset);
+                var lastNpcInteracted = (Npc) processContext.Read<ushort>(GameManager.InteractedNpcOffset);
                 var rosterData = new Roster(GameManager.RosterDataOffset);
 
                 if (!menuData.InGame)
@@ -77,12 +72,13 @@ namespace MapAssist.Helpers
 
                 if (playerUnit == null)
                 {
-
-                    if (_errorThrown) return null;
+                    if (_errorThrown)
+                        return null;
 
                     _errorThrown = true;
                     throw new Exception("Player unit not found.");
                 }
+
                 _errorThrown = false;
 
                 if (!PlayerUnits.ContainsKey(_currentProcessId))
@@ -98,7 +94,8 @@ namespace MapAssist.Helpers
 
                 if (!levelId.IsValid())
                 {
-                    if (_errorThrown) return null;
+                    if (_errorThrown)
+                        return null;
 
                     _errorThrown = true;
                     throw new Exception("Level id out of bounds.");
@@ -127,7 +124,8 @@ namespace MapAssist.Helpers
 
                 if (mapSeed <= 0 || mapSeed > 0xFFFFFFFF)
                 {
-                    if (_errorThrown) return null;
+                    if (_errorThrown)
+                        return null;
 
                     _errorThrown = true;
                     throw new Exception("Map seed is out of bounds.");
@@ -166,7 +164,8 @@ namespace MapAssist.Helpers
 
                 if (!gameDifficulty.IsValid())
                 {
-                    if (_errorThrown) return null;
+                    if (_errorThrown)
+                        return null;
 
                     _errorThrown = true;
                     throw new Exception("Game difficulty out of bounds.");
@@ -208,6 +207,7 @@ namespace MapAssist.Helpers
                 {
                     obj.Update();
                 }
+
                 var objectList = rawObjectUnits.Where(x => x != null && x.UnitType == UnitType.Object && x.UnitId < uint.MaxValue).ToArray();
 
                 // Items
@@ -231,7 +231,8 @@ namespace MapAssist.Helpers
                         cache[item.HashString] = item;
                     }
 
-                    if (Items.ItemUnitIdsToSkip[_currentProcessId].Contains(item.UnitId)) continue;
+                    if (Items.ItemUnitIdsToSkip[_currentProcessId].Contains(item.UnitId))
+                        continue;
 
                     if (_playerMapChanged[_currentProcessId] && item.IsAnyPlayerHolding && item.Item != Item.HoradricCube && !Items.ItemUnitIdsToSkip[_currentProcessId].Contains(item.UnitId))
                     {
@@ -239,7 +240,8 @@ namespace MapAssist.Helpers
                         continue;
                     }
 
-                    if (item.UnitId == uint.MaxValue) continue;
+                    if (item.UnitId == uint.MaxValue)
+                        continue;
 
                     item.IsPlayerOwned = _playerCubeOwnerID[_currentProcessId] != uint.MaxValue && item.ItemData.dwOwnerID == _playerCubeOwnerID[_currentProcessId];
 
@@ -251,7 +253,9 @@ namespace MapAssist.Helpers
                         }
                         else
                         {
-                            item.VendorOwner = !_firstMemoryRead ? lastNpcInteracted : Npc.Unknown; // This prevents marking the VendorOwner for all store items when restarting MapAssist in the middle of the game
+                            item.VendorOwner = !_firstMemoryRead
+                                ? lastNpcInteracted
+                                : Npc.Unknown; // This prevents marking the VendorOwner for all store items when restarting MapAssist in the middle of the game
                             Items.ItemVendors[_currentProcessId].Add(item.UnitId, item.VendorOwner);
                         }
                     }
@@ -273,9 +277,9 @@ namespace MapAssist.Helpers
 
                 var itemList = Items.ItemLog[_currentProcessId].Select(item =>
                 {
-                    if (cache.TryGetValue(item.ItemHashString, out var cachedItem) && ((UnitItem)cachedItem).HashString == item.ItemHashString)
+                    if (cache.TryGetValue(item.ItemHashString, out var cachedItem) && ((UnitItem) cachedItem).HashString == item.ItemHashString)
                     {
-                        item.UnitItem = (UnitItem)cachedItem;
+                        item.UnitItem = (UnitItem) cachedItem;
                     }
 
                     if (item.UnitItem.DistanceTo(playerUnit) <= 40 && !rawItemUnits.Contains(item.UnitItem)) // Player is close to the item position but it was not found
@@ -307,15 +311,17 @@ namespace MapAssist.Helpers
                 playerUnit.BeltItems = Enumerable.Range(0, 4).Select(i => Enumerable.Range(0, beltSize).Select(j => beltItems.FirstOrDefault(item => item.X == i + j * 4)).ToArray()).ToArray();
 
                 // Unit hover
-                var allUnits = ((UnitAny[])playerList.Values.ToArray()).Concat(monsterList).Concat(mercList).Concat(rawObjectUnits).Concat(rawItemUnits);
+                var allUnits = ((UnitAny[]) playerList.Values.ToArray()).Concat(monsterList).Concat(mercList).Concat(rawObjectUnits).Concat(rawItemUnits);
 
                 var hoveredUnits = allUnits.Where(x => x.IsHovered).ToArray();
-                if (hoveredUnits.Length > 0 && hoveredUnits[0].UnitId != lastHoverData.UnitId) hoveredUnits[0].IsHovered = false;
+                if (hoveredUnits.Length > 0 && hoveredUnits[0].UnitId != lastHoverData.UnitId)
+                    hoveredUnits[0].IsHovered = false;
 
                 if (lastHoverData.IsHovered)
                 {
                     var units = allUnits.Where(x => x.UnitId == lastHoverData.UnitId && x.UnitType == lastHoverData.UnitType).ToArray();
-                    if (units.Length > 0) units[0].IsHovered = true;
+                    if (units.Length > 0)
+                        units[0].IsHovered = true;
                 }
 
                 // Return data
@@ -328,7 +334,7 @@ namespace MapAssist.Helpers
                     MapSeed = mapSeed,
                     Area = levelId,
                     Difficulty = gameDifficulty,
-                    MainWindowHandle = GameManager.MainWindowHandle,
+                    MainWindowHandle = processContext.Process.MainWindowHandle,
                     PlayerName = playerUnit.Name,
                     PlayerUnit = playerUnit,
                     Players = playerList,
@@ -354,19 +360,20 @@ namespace MapAssist.Helpers
         private static T[] GetUnits<T>(UnitType unitType, bool saveToCache = false) where T : UnitAny
         {
             var allUnits = new Dictionary<uint, T>();
-            Func<IntPtr, T> CreateUnit = (ptr) => (T)Activator.CreateInstance(typeof(T), new object[] { ptr });
+            Func<IntPtr, T> CreateUnit = (ptr) => (T) Activator.CreateInstance(typeof(T), new object[] { ptr });
 
-            var unitHashTable = GameManager.UnitHashTable(128 * 8 * (int)unitType);
+            var unitHashTable = GameManager.UnitHashTable(128 * 8 * (int) unitType);
 
             foreach (var ptrUnit in unitHashTable.UnitTable)
             {
-                if (ptrUnit == IntPtr.Zero) continue;
+                if (ptrUnit == IntPtr.Zero)
+                    continue;
 
                 var unit = CreateUnit(ptrUnit);
 
                 Action<object> UseCachedUnit = (seenUnit) =>
                 {
-                    var castedSeenUnit = (T)seenUnit;
+                    var castedSeenUnit = (T) seenUnit;
                     castedSeenUnit.CopyFrom(unit);
 
                     allUnits[castedSeenUnit.UnitId] = castedSeenUnit;
@@ -374,7 +381,7 @@ namespace MapAssist.Helpers
 
                 do
                 {
-                    if (saveToCache && cache.TryGetValue(unit.UnitId, out var seenUnit1) && seenUnit1 is T && !allUnits.ContainsKey(((T)seenUnit1).UnitId))
+                    if (saveToCache && cache.TryGetValue(unit.UnitId, out var seenUnit1) && seenUnit1 is T && !allUnits.ContainsKey(((T) seenUnit1).UnitId))
                     {
                         UseCachedUnit(seenUnit1);
                     }
@@ -428,26 +435,5 @@ namespace MapAssist.Helpers
                 Corpses[_currentProcessId].Clear();
             }
         }
-
-        //private static HashSet<Room> GetRooms(Room startingRoom, ref HashSet<Room> roomsList)
-        //{
-        //    var roomsNear = startingRoom.RoomsNear;
-        //    foreach (var roomNear in roomsNear)
-        //    {
-        //        if (!roomsList.Contains(roomNear))
-        //        {
-        //            roomsList.Add(roomNear);
-        //            GetRooms(roomNear, ref roomsList);
-        //        }
-        //    }
-
-        //    if (!roomsList.Contains(startingRoom.RoomNextFast))
-        //    {
-        //        roomsList.Add(startingRoom.RoomNextFast);
-        //        GetRooms(startingRoom.RoomNextFast, ref roomsList);
-        //    }
-
-        //    return roomsList;
-        //}
     }
 }

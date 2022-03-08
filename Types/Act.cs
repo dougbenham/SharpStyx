@@ -1,7 +1,6 @@
-﻿using MapAssist.Helpers;
-using MapAssist.Interfaces;
+﻿using SharpStyx.Interfaces;
 
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class Act : IUpdatable<Act>
     {

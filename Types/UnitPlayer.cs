@@ -1,11 +1,7 @@
-﻿using MapAssist.Helpers;
-using MapAssist.Structs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
+using SharpStyx.Structs;
 
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class UnitPlayer : UnitAny
     {

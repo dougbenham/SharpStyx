@@ -1,50 +1,42 @@
-﻿/**
- *   Copyright (C) 2021 okaygo
- *
- *   https://github.com/misterokaygo/MapAssist/
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **/
-
-using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MapAssist.Helpers
+namespace SharpStyx
 {
     public class ProcessContext : IDisposable
     {
         public int OpenContextCount = 1;
-        private static readonly NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
-        private Process _process;
+
+        public Process Process { get; set; }
+
         private IntPtr _handle;
-        private IntPtr _baseAddr;
-        private int _moduleSize;
-        private bool _disposedValue;
+        private readonly IntPtr _baseAddr;
+        private readonly int _moduleSize;
+        private int _disposed;
 
         public ProcessContext(Process process)
         {
-            _process = process;
-            _handle = WindowsExternal.OpenProcess((uint)WindowsExternal.ProcessAccessFlags.VirtualMemoryRead, false, _process.Id);
-            _baseAddr = _process.MainModule.BaseAddress;
-            _moduleSize = _process.MainModule.ModuleMemorySize;
+            Process = process;
+            _handle = WindowsExternal.OpenProcess((uint) WindowsExternal.ProcessAccessFlags.VirtualMemoryRead, false, Process.Id);
+            _baseAddr = Process.MainModule.BaseAddress;
+            _moduleSize = Process.MainModule.ModuleMemorySize;
         }
 
-        public IntPtr Handle { get => _handle; }
-        public IntPtr BaseAddr { get => _baseAddr; }
-        public int ProcessId { get => _process.Id; }
+        public IntPtr Handle
+        {
+            get => _handle;
+        }
+
+        public IntPtr BaseAddr
+        {
+            get => _baseAddr;
+        }
+
+        public int ProcessId
+        {
+            get => Process.Id;
+        }
 
         public IntPtr GetUnitHashtableOffset()
         {
@@ -62,7 +54,7 @@ namespace MapAssist.Helpers
 
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
             var delta = patternAddress.ToInt64() - _baseAddr.ToInt64();
-            return IntPtr.Add(_baseAddr, (int)(delta + 7 + offsetAddressToInt));
+            return IntPtr.Add(_baseAddr, (int) (delta + 7 + offsetAddressToInt));
         }
 
         public IntPtr GetExpansionOffset()
@@ -81,7 +73,7 @@ namespace MapAssist.Helpers
 
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
             var delta = patternAddress.ToInt64() - _baseAddr.ToInt64();
-            return IntPtr.Add(_baseAddr, (int)(delta + 7 + offsetAddressToInt));
+            return IntPtr.Add(_baseAddr, (int) (delta + 7 + offsetAddressToInt));
         }
 
         public IntPtr GetGameNameOffset() // This is relatively more hacky than the other scans, need to test against another D2R 1.2 build. Struct changed massively with 1.2 from what I can tell.
@@ -102,7 +94,7 @@ namespace MapAssist.Helpers
 
             try
             {
-                offsetAddressToInt = (int)Read<uint>(IntPtr.Add(_baseAddr, offsetAddressToInt + 0x145));
+                offsetAddressToInt = (int) Read<uint>(IntPtr.Add(_baseAddr, offsetAddressToInt + 0x145));
             }
             catch (Exception)
             {
@@ -110,7 +102,7 @@ namespace MapAssist.Helpers
                 return IntPtr.Zero;
             }
 
-            return IntPtr.Add(_baseAddr, (int)(offsetAddressToInt + 0x13));
+            return IntPtr.Add(_baseAddr, (int) (offsetAddressToInt + 0x13));
         }
 
         public IntPtr GetMenuOpenOffset()
@@ -129,7 +121,7 @@ namespace MapAssist.Helpers
 
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
             var delta = patternAddress.ToInt64() - _baseAddr.ToInt64();
-            return IntPtr.Add(_baseAddr, (int)(delta + 6 + offsetAddressToInt));
+            return IntPtr.Add(_baseAddr, (int) (delta + 6 + offsetAddressToInt));
         }
 
         public IntPtr GetMenuDataOffset()
@@ -163,9 +155,10 @@ namespace MapAssist.Helpers
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
+
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
             var delta = patternAddress.ToInt64() - _baseAddr.ToInt64();
-            return IntPtr.Add(_baseAddr, (int)(delta + 1 + offsetAddressToInt));
+            return IntPtr.Add(_baseAddr, (int) (delta + 1 + offsetAddressToInt));
         }
 
         public IntPtr GetInteractedNpcOffset()
@@ -181,8 +174,9 @@ namespace MapAssist.Helpers
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
+
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
-            return IntPtr.Add(_baseAddr, (int)(offsetAddressToInt + 0x1D4));
+            return IntPtr.Add(_baseAddr, (int) (offsetAddressToInt + 0x1D4));
         }
 
         public IntPtr GetLastHoverObjectOffset()
@@ -198,6 +192,7 @@ namespace MapAssist.Helpers
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
+
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0) - 1;
             return IntPtr.Add(_baseAddr, offsetAddressToInt);
         }
@@ -225,7 +220,7 @@ namespace MapAssist.Helpers
                 var result = new T[count];
                 for (var i = 0; i < count; i++)
                 {
-                    result[i] = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject() + (i * sz), typeof(T));
+                    result[i] = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject() + (i * sz), typeof(T));
                 }
 
                 return result;
@@ -268,10 +263,8 @@ namespace MapAssist.Helpers
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
-                _disposedValue = true;
-
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects)
@@ -282,17 +275,9 @@ namespace MapAssist.Helpers
                     WindowsExternal.CloseHandle(_handle);
                 }
 
-                //_process = null;
                 _handle = IntPtr.Zero;
             }
         }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~ProcessContext()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
 
         public void Dispose()
         {
@@ -301,8 +286,7 @@ namespace MapAssist.Helpers
                 return;
             }
 
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            Dispose(true);
         }
     }
 }

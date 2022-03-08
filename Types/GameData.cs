@@ -1,28 +1,6 @@
-﻿/**
- *   Copyright (C) 2021 okaygo
- *
- *   https://github.com/misterokaygo/MapAssist/
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **/
+﻿using SharpStyx.Structs;
 
-using GameOverlay.Drawing;
-using MapAssist.Structs;
-using System;
-using System.Collections.Generic;
-
-namespace MapAssist.Types
+namespace SharpStyx.Types
 {
     public class GameData
     {
@@ -47,20 +25,6 @@ namespace MapAssist.Types
         public MenuData MenuOpen;
         public Npc LastNpcInteracted;
         public int ProcessId;
-
-        public bool HasGameChanged(GameData other)
-        {
-            if (other == null) return true;
-            if (MapSeed != other.MapSeed) return true;
-            if (Difficulty != other.Difficulty) return true;
-            if (PlayerName != other.PlayerName) return true;
-            return false;
-        }
-
-        public bool HasMapChanged(GameData other)
-        {
-            return HasGameChanged(other) || Area != other.Area;
-        }
 
         public override string ToString()
         {

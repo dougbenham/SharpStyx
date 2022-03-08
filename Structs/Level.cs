@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using MapAssist.Types;
+using SharpStyx.Types;
 
-namespace MapAssist.Structs
+namespace SharpStyx.Structs
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct Level
