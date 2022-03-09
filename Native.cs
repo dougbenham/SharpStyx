@@ -2,7 +2,7 @@
 
 namespace SharpStyx
 {
-    public static class WindowsExternal
+    public static class Native
     {
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenProcess(

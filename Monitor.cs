@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 
 namespace SharpStyx;
@@ -15,10 +15,20 @@ public class Monitor : BackgroundService
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Task.Delay(5000, stoppingToken);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            foreach (var process in Process.GetProcessesByName("D2R"))
+            {
+
+            }
+
+            await Task.Delay(5000, stoppingToken);
+        }
+
         _applicationLifetime.StopApplication();
     }
 }
+
 public class UI : BackgroundService
 {
     private readonly IHostApplicationLifetime _applicationLifetime;

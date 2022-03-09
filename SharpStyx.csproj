@@ -9,24 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Interfaces\**" />
-    <Compile Remove="Structs\**" />
-    <Compile Remove="Types\**" />
-    <EmbeddedResource Remove="Interfaces\**" />
-    <EmbeddedResource Remove="Structs\**" />
-    <EmbeddedResource Remove="Types\**" />
-    <None Remove="Interfaces\**" />
-    <None Remove="Structs\**" />
-    <None Remove="Types\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="GameManager.cs" />
-    <Compile Remove="GameMemory.cs" />
-    <Compile Remove="ProcessContext.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Lamar" Version="8.0.1" />
     <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />

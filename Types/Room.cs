@@ -31,7 +31,7 @@ namespace SharpStyx.Types
                 {
                     var addrBuf = new byte[8];
                     var uintBuf = new byte[4];
-                    WindowsExternal.ReadProcessMemory(processContext.Handle, IntPtr.Add(_pRoom, 0x40), uintBuf,
+                    Native.ReadProcessMemory(processContext.Handle, IntPtr.Add(_pRoom, 0x40), uintBuf,
                         uintBuf.Length, out _);
                     var numRoomsNear = BitConverter.ToUInt32(uintBuf, 0);
                     if (numRoomsNear > 9)
@@ -42,7 +42,7 @@ namespace SharpStyx.Types
                     var roomList = new Room[numRoomsNear];
                     for (var p = 0; p < numRoomsNear; p++)
                     {
-                        WindowsExternal.ReadProcessMemory(processContext.Handle, IntPtr.Add(_room.pRoomsNear, p * 8),
+                        Native.ReadProcessMemory(processContext.Handle, IntPtr.Add(_room.pRoomsNear, p * 8),
                             addrBuf, addrBuf.Length, out _);
                         var pRoom = (IntPtr)BitConverter.ToInt64(addrBuf, 0);
                         roomList[p] = new Room(pRoom, false);

@@ -6,36 +6,19 @@ namespace SharpStyx
 {
     public class ProcessContext : IDisposable
     {
-        public int OpenContextCount = 1;
-
-        public Process Process { get; set; }
-
         private IntPtr _handle;
         private readonly IntPtr _baseAddr;
         private readonly int _moduleSize;
         private int _disposed;
 
+        public Process Process { get; set; }
+
         public ProcessContext(Process process)
         {
             Process = process;
-            _handle = WindowsExternal.OpenProcess((uint) WindowsExternal.ProcessAccessFlags.VirtualMemoryRead, false, Process.Id);
+            _handle = Native.OpenProcess((uint) Native.ProcessAccessFlags.VirtualMemoryRead, false, Process.Id);
             _baseAddr = Process.MainModule.BaseAddress;
             _moduleSize = Process.MainModule.ModuleMemorySize;
-        }
-
-        public IntPtr Handle
-        {
-            get => _handle;
-        }
-
-        public IntPtr BaseAddr
-        {
-            get => _baseAddr;
-        }
-
-        public int ProcessId
-        {
-            get => Process.Id;
         }
 
         public IntPtr GetUnitHashtableOffset()
@@ -46,7 +29,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, 3);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -65,7 +48,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, 3);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -84,7 +67,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, -0x44);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -113,7 +96,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, 2);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -132,7 +115,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, 5);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -150,7 +133,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, -3);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -169,7 +152,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, 4);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -187,7 +170,7 @@ namespace SharpStyx
 
             var offsetBuffer = new byte[4];
             var resultRelativeAddress = IntPtr.Add(patternAddress, 3);
-            if (!WindowsExternal.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
                 _log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
@@ -200,7 +183,7 @@ namespace SharpStyx
         public byte[] GetProcessMemory()
         {
             var memoryBuffer = new byte[_moduleSize];
-            if (WindowsExternal.ReadProcessMemory(_handle, _baseAddr, memoryBuffer, _moduleSize, out _) == false)
+            if (Native.ReadProcessMemory(_handle, _baseAddr, memoryBuffer, _moduleSize, out _) == false)
             {
                 _log.Info("We failed to read the process memory");
                 return null;
@@ -216,7 +199,7 @@ namespace SharpStyx
             var handle = GCHandle.Alloc(buf, GCHandleType.Pinned);
             try
             {
-                WindowsExternal.ReadProcessMemory(_handle, address, buf, buf.Length, out _);
+                Native.ReadProcessMemory(_handle, address, buf, buf.Length, out _);
                 var result = new T[count];
                 for (var i = 0; i < count; i++)
                 {
@@ -272,7 +255,7 @@ namespace SharpStyx
 
                 if (_handle != IntPtr.Zero)
                 {
-                    WindowsExternal.CloseHandle(_handle);
+                    Native.CloseHandle(_handle);
                 }
 
                 _handle = IntPtr.Zero;

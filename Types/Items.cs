@@ -6,7 +6,6 @@ namespace SharpStyx.Types
         public static readonly Dictionary<int, HashSet<uint>> ItemUnitIdsSeen = new();
         public static readonly Dictionary<int, HashSet<uint>> ItemUnitIdsToSkip = new();
         public static readonly Dictionary<int, HashSet<uint>> InventoryItemUnitIdsToSkip = new();
-        public static readonly Dictionary<int, Dictionary<uint, Npc>> ItemVendors = new();
 
         public static void LogItem(UnitItem item, int processId)
         {
