@@ -4,16 +4,16 @@ namespace SharpStyx
 {
     public static class GameMemory
     {
-        private static Dictionary<int, uint> _lastMapSeeds = new Dictionary<int, uint>();
-        private static Dictionary<int, bool> _playerMapChanged = new Dictionary<int, bool>();
-        private static Dictionary<int, uint> _playerCubeOwnerID = new Dictionary<int, uint>();
-        private static Dictionary<int, Area> _playerArea = new Dictionary<int, Area>();
-        private static Dictionary<int, Session> _sessions = new Dictionary<int, Session>();
+        private static readonly Dictionary<int, uint> _lastMapSeeds = new();
+        private static readonly Dictionary<int, bool> _playerMapChanged = new();
+        private static readonly Dictionary<int, uint> _playerCubeOwnerID = new();
+        private static readonly Dictionary<int, Area> _playerArea = new();
+        private static readonly Dictionary<int, Session> _sessions = new();
         private static int _currentProcessId;
 
-        public static Dictionary<int, UnitPlayer> PlayerUnits = new Dictionary<int, UnitPlayer>();
-        public static Dictionary<int, Dictionary<string, UnitPlayer>> Corpses = new Dictionary<int, Dictionary<string, UnitPlayer>>();
-        public static Dictionary<object, object> cache = new Dictionary<object, object>();
+        public static Dictionary<int, UnitPlayer> PlayerUnits = new();
+        public static Dictionary<int, Dictionary<string, UnitPlayer>> Corpses = new();
+        public static Dictionary<object, object> cache = new();
 
         private static bool _firstMemoryRead = true;
         private static bool _errorThrown = false;
@@ -64,7 +64,7 @@ namespace SharpStyx
 
                 if (!_sessions.ContainsKey(_currentProcessId))
                 {
-                    _sessions.Add(_currentProcessId, new Session(GameManager.GameNameOffset));
+                    _sessions.Add(_currentProcessId, new(GameManager.GameNameOffset));
                 }
 
                 var rawPlayerUnits = GetUnits<UnitPlayer>(UnitType.Player).Select(x => x.Update()).Where(x => x != null).ToArray();
@@ -76,7 +76,7 @@ namespace SharpStyx
                         return null;
 
                     _errorThrown = true;
-                    throw new Exception("Player unit not found.");
+                    throw new("Player unit not found.");
                 }
 
                 _errorThrown = false;
@@ -98,7 +98,7 @@ namespace SharpStyx
                         return null;
 
                     _errorThrown = true;
-                    throw new Exception("Level id out of bounds.");
+                    throw new("Level id out of bounds.");
                 }
 
                 // Update area timer
@@ -128,7 +128,7 @@ namespace SharpStyx
                         return null;
 
                     _errorThrown = true;
-                    throw new Exception("Map seed is out of bounds.");
+                    throw new("Map seed is out of bounds.");
                 }
 
                 // Check if exited the game
@@ -168,7 +168,7 @@ namespace SharpStyx
                         return null;
 
                     _errorThrown = true;
-                    throw new Exception("Game difficulty out of bounds.");
+                    throw new("Game difficulty out of bounds.");
                 }
 
                 // Players
@@ -328,7 +328,7 @@ namespace SharpStyx
                 _firstMemoryRead = false;
                 _errorThrown = false;
 
-                return new GameData
+                return new()
                 {
                     PlayerPosition = playerUnit.Position,
                     MapSeed = mapSeed,
@@ -409,11 +409,11 @@ namespace SharpStyx
         {
             if (!Items.ItemUnitHashesSeen.ContainsKey(_currentProcessId))
             {
-                Items.ItemUnitHashesSeen.Add(_currentProcessId, new HashSet<string>());
-                Items.ItemUnitIdsSeen.Add(_currentProcessId, new HashSet<uint>());
-                Items.ItemUnitIdsToSkip.Add(_currentProcessId, new HashSet<uint>());
-                Items.InventoryItemUnitIdsToSkip.Add(_currentProcessId, new HashSet<uint>());
-                Items.ItemVendors.Add(_currentProcessId, new Dictionary<uint, Npc>());
+                Items.ItemUnitHashesSeen.Add(_currentProcessId, new());
+                Items.ItemUnitIdsSeen.Add(_currentProcessId, new());
+                Items.ItemUnitIdsToSkip.Add(_currentProcessId, new());
+                Items.InventoryItemUnitIdsToSkip.Add(_currentProcessId, new());
+                Items.ItemVendors.Add(_currentProcessId, new());
                 Items.ItemLog.Add(_currentProcessId, new List<ItemLogEntry>());
             }
             else
@@ -428,7 +428,7 @@ namespace SharpStyx
 
             if (!Corpses.ContainsKey(_currentProcessId))
             {
-                Corpses.Add(_currentProcessId, new Dictionary<string, UnitPlayer>());
+                Corpses.Add(_currentProcessId, new());
             }
             else
             {
