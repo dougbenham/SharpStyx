@@ -906,36 +906,7 @@ namespace SharpStyx.Types
 
     public static class NpcExtensions
     {
-        public static Dictionary<string, LocalizedObj> LocalizedNpcs = new Dictionary<string, LocalizedObj>();
-
-        public static readonly Dictionary<Npc, string> _npcLocalizationKeys = new Dictionary<Npc, string>()
-        {
-            // List of NPCs with Localization "Key" not matching npc.ToString()
-            [Npc.Asheara] = "asheara",
-            [Npc.Hratli] = "hratli",
-            [Npc.Alkor] = "alkor",
-            [Npc.Ormus] = "ormus",
-            [Npc.Tyrael] = "tyrael",
-            [Npc.Tyrael2] = "tyrael",
-            [Npc.Tyrael3] = "tyrael",
-            [Npc.Halbu] = "halbu",
-            [Npc.DeckardCain2] = "DeckardCain",
-            [Npc.DeckardCain3] = "DeckardCain",
-            [Npc.DeckardCain4] = "DeckardCain",
-            [Npc.DeckardCain5] = "DeckardCain",
-            [Npc.DeckardCain6] = "DeckardCain",
-            [Npc.Warriv] = "Wariv",
-            [Npc.Warriv2] = "Wariv",
-            [Npc.Meshif2] = "Meshif",
-            [Npc.Drehya2] = "Drehya",
-            [Npc.QualKehk] = "Qual-Kehk",
-            [Npc.NihlathakTown] = "Nihlathak Town",
-            [Npc.Navi] = "navi",
-            [Npc.Izual2] = "Izual",
-            [Npc.BaalCrab] = "Baal",
-        };
-
-        public static readonly HashSet<Npc> _npcTownsfolk = new HashSet<Npc>()
+        private static readonly HashSet<Npc> _npcTownsfolk = new()
         {
             // Act 1 Npcs
             Npc.DeckardCain,
@@ -986,25 +957,7 @@ namespace SharpStyx.Types
             Npc.Malachai, // Hadriel
             Npc.Izual2, // Izual's spirit after quest
         };
-
-        public static string Name(this Npc npc)
-        {
-            var key = _npcLocalizationKeys.TryGetValue(npc, out var label) ? label : npc.ToString();
-
-            return LocalizedName(key);
-        }
-
-        public static string LocalizedName(string key)
-        {
-            LocalizedObj localItem;
-            if (!LocalizedNpcs.TryGetValue(key, out localItem))
-            {
-                return key;
-            }
-            var lang = MapAssistConfiguration.Loaded.LanguageCode.ToString();
-            return localItem.GetType().GetProperty(lang).GetValue(localItem, null).ToString();
-        }
-
+        
         public static bool IsTownsfolk(this Npc npc)
         {
             return _npcTownsfolk.Contains(npc);

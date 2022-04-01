@@ -10,7 +10,7 @@ namespace SharpStyx.Types
         public uint UnitId => Struct.UnitId;
         public uint TxtFileNo => Struct.TxtFileNo;
         public Area Area { get; private set; }
-        public Point Position => new Point(X, Y);
+        public PointF Position => new PointF(X, Y);
         public float X => IsMovable ? Path.DynamicX : (float)Path.StaticX;
         public float Y => IsMovable ? Path.DynamicY : (float)Path.StaticY;
         public StatListStruct StatsStruct { get; private set; }

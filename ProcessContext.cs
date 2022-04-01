@@ -31,7 +31,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, 3);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -50,13 +50,33 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, 3);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
             var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
             var delta = patternAddress.ToInt64() - _baseAddr.ToInt64();
             return IntPtr.Add(_baseAddr, (int) (delta + 7 + offsetAddressToInt));
+        }
+
+        public IntPtr GetGameIPOffset()
+        {
+            var pattern = "\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x44\x88\x2D\x00\x00\x00\x00";
+            var mask = "x????xxx????xxx????";
+            var patternAddress = FindPattern(pattern, mask);
+
+            var offsetBuffer = new byte[4];
+            var resultRelativeAddress = IntPtr.Add(patternAddress, 8);
+            if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
+            {
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                return IntPtr.Zero;
+            }
+
+            var offsetAddressToInt = BitConverter.ToInt32(offsetBuffer, 0);
+            var delta = patternAddress.ToInt64() - _baseAddr.ToInt64();
+            //_log.Info("GetGameIPOffset Address: " + offsetAddressToInt.ToString("X"));
+            return IntPtr.Add(_baseAddr, (int)(delta - 0xF4 + offsetAddressToInt));
         }
 
         public IntPtr GetGameNameOffset() // This is relatively more hacky than the other scans, need to test against another D2R 1.2 build. Struct changed massively with 1.2 from what I can tell.
@@ -69,7 +89,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, -0x44);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -81,7 +101,7 @@ namespace SharpStyx
             }
             catch (Exception)
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -98,7 +118,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, 2);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -117,7 +137,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, 5);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -135,7 +155,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, -3);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -154,7 +174,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, 4);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -172,7 +192,7 @@ namespace SharpStyx
             var resultRelativeAddress = IntPtr.Add(patternAddress, 3);
             if (!Native.ReadProcessMemory(_handle, resultRelativeAddress, offsetBuffer, sizeof(int), out _))
             {
-                _log.Info($"Failed to find pattern {PatternToString(pattern)}");
+                //_log.Info($"Failed to find pattern {PatternToString(pattern)}");
                 return IntPtr.Zero;
             }
 
@@ -185,7 +205,7 @@ namespace SharpStyx
             var memoryBuffer = new byte[_moduleSize];
             if (Native.ReadProcessMemory(_handle, _baseAddr, memoryBuffer, _moduleSize, out _) == false)
             {
-                _log.Info("We failed to read the process memory");
+                //_log.Info("We failed to read the process memory");
                 return null;
             }
 
@@ -264,11 +284,6 @@ namespace SharpStyx
 
         public void Dispose()
         {
-            if (--OpenContextCount > 0)
-            {
-                return;
-            }
-
             Dispose(true);
         }
     }

@@ -18,9 +18,7 @@ namespace SharpStyx.Types
         public UnitObject[] Objects;
         public UnitItem[] Items;
         public UnitItem[] AllItems;
-        public ItemLogEntry[] ItemLog;
         public Session Session;
-        public Roster Roster;
         public byte MenuPanelOpen;
         public MenuData MenuOpen;
         public Npc LastNpcInteracted;

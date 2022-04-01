@@ -19,7 +19,8 @@ public class Monitor : BackgroundService
         {
             foreach (var process in Process.GetProcessesByName("D2R"))
             {
-
+                var context = new ProcessContext(process);
+                var gameIPOffset = context.GetGameIPOffset();
             }
 
             await Task.Delay(5000, stoppingToken);
